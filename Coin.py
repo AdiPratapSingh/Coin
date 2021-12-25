@@ -1,18 +1,17 @@
-# """
-# @author: Adi Pratap Singh
-# pip install Flask==0.12.2
-# HTTP Client : Postman
-# """
 
 # Importing the libraries
 import datetime
 import hashlib
 import json
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
+import uuid 
+import requests
+import urllib.parse
 
 class Blockchain:
     
     def __init__(self):
+        self.mempool = []
         self.chain = []
         self.creat_block(proof = 1,previous_hash = '0' )
          
@@ -20,7 +19,9 @@ class Blockchain:
         block = {'index': len(self.chain) + 1,
                   'timestamp': str(datetime.datetime.now()),
                   'proof': proof,
-                  'previous_hash':previous_hash}
+                  'previous_hash':previous_hash,
+                  'ledger': self.mempool}
+        self.mempool.clear()
         self.chain.append(block)
         return block
     
@@ -58,10 +59,16 @@ class Blockchain:
             
             index = index + 1
         return True
+    
+    def mem_transaction(self,sender,receiver,amount):
+        self.mempool.append({'sender':sender,
+                             'receiver':receiver,
+                             'amount':amount})
+        
 
 # Flask web app
 app = Flask(__name__)
-
+ 
 blockchain = Blockchain()
 
 # Mining a block
